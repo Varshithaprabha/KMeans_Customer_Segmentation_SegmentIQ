@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SegmentIQ — Customer Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #F5F0E8;
+  --bg2:      #FDFAF4;
+  --bg3:      #EDE7D9;
+  --border:   #D9CEBE;
+  --border2:  #C8BAA6;
+  --text:     #1F1A14;
+  --text2:    #6B5E4E;
+  --text3:    #9C8C7A;
+  --accent:   #3D7A5F;
+  --accent2:  #2D6048;
+  --terra:    #C0533A;
+  --terra2:   #A03E27;
+  --gold:     #C4963A;
+  --success:  #3D7A5F;
+  --warn:     #C4963A;
+  --danger:   #C0533A;
+  --radius:   10px;
+  --radius-lg:16px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.site-header {
+  background: var(--accent2);
+  padding: 0 36px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 11px; }
+.logo-icon {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.logo-text {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.logo-text span { color: #FBBF60; }
+.header-center {
+  display: flex; gap: 2px;
+  background: rgba(0,0,0,0.18);
+  border-radius: 10px;
+  padding: 4px;
+}
+.htab {
+  padding: 7px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+  border-radius: 7px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.htab:hover { color: #fff; background: rgba(255,255,255,0.12); }
+.htab.on { background: rgba(255,255,255,0.22); color: #fff; font-weight: 600; }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.hbadge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  padding: 5px 13px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.85);
+  display: flex; align-items: center; gap: 7px;
+}
+.dot-live {
+  width: 7px; height: 7px;
+  background: #FBBF60;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ── MAIN ────────────────────────────────────────────── */
+main {
+  flex: 1;
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px;
+}
+.panel { display: none; }
+.panel.on { display: block; animation: fadeUp .22s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* ── GRID ────────────────────────────────────────────── */
+.g  { display: grid; gap: 14px; margin-bottom: 14px; }
+.g2 { grid-template-columns: 1fr 1fr; }
+.g3 { grid-template-columns: 1fr 1fr 1fr; }
+.g4 { grid-template-columns: repeat(4,1fr); }
+@media(max-width:900px){ .g2,.g3,.g4 { grid-template-columns: 1fr; } }
+
+/* ── CARDS ───────────────────────────────────────────── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.card:hover { border-color: var(--border2); box-shadow: 0 2px 12px rgba(61,122,95,0.08); }
+.card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 14px;
+}
+.metric { font-size: 34px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; color: var(--text); font-family: 'Fraunces', serif; }
+.metric-sub { font-size: 12px; color: var(--text3); margin-top: 5px; }
+.metric-card { position: relative; overflow: hidden; }
+.metric-card::after { content: attr(data-icon); position: absolute; right: 18px; top: 14px; font-size: 28px; opacity: .1; }
+.chart-wrap { position: relative; width: 100%; }
+
+/* ── HERO ────────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, var(--accent2) 0%, #3D7A5F 100%);
+  border-radius: var(--radius-lg);
+  padding: 30px 34px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  color: #fff;
+}
+.hero-text h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 24px; font-weight: 700;
+  letter-spacing: -0.02em; margin-bottom: 7px;
+}
+.hero-text p { font-size: 14px; color: rgba(255,255,255,0.75); line-height: 1.65; max-width: 520px; }
+.hero-stat { display: flex; gap: 32px; flex-shrink: 0; }
+.hs { text-align: center; }
+.hs-val { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; color: #FBBF60; }
+.hs-lbl { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 3px; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── CONTROLS ────────────────────────────────────────── */
+.ctrl-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ctrl-row label { font-size: 12px; color: var(--text2); font-weight: 600; min-width: 105px; }
+.ctrl-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.ctrl-val { font-size: 13px; font-weight: 700; color: var(--text); min-width: 28px; text-align: right; font-family: 'DM Mono', monospace; }
+
+input[type=number], select {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color .15s;
+}
+input[type=number]:focus, select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(61,122,95,0.15);
+}
+
+.btn {
+  display: block; width: 100%;
+  padding: 11px 20px;
+  border: none; border-radius: 9px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+  margin-bottom: 8px;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(61,122,95,0.35); }
+.btn-secondary { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
+.btn-secondary:hover { background: var(--border); }
+.btn:active { transform: scale(.98); }
+
+/* ── LEGEND ──────────────────────────────────────────── */
+.legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
+.legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text2); }
+.ldot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── TABLE ───────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { text-align: left; padding: 9px 12px; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); }
+td { padding: 10px 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+tr:last-child td { border: none; }
+tr:hover td { background: var(--bg3); }
+
+/* ── FORM ────────────────────────────────────────────── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.full { grid-column: 1/-1; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--text3); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── PREDICT RESULT ──────────────────────────────────── */
+.pred-cluster-badge { border-radius: 12px; padding: 18px 20px; margin-bottom: 16px; border: 1px solid; }
+.stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.stat-row:last-child { border: none; }
+.stat-label { color: var(--text2); }
+.stat-value { font-weight: 600; color: var(--text); }
+
+/* ── REC CARDS ───────────────────────────────────────── */
+.rec-card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-left: 3px solid;
+  border-radius: 0 10px 10px 0;
+  padding: 14px 18px;
+  margin-bottom: 10px;
+}
+.rec-header { display: flex; align-items: center; gap: 10px; margin-bottom: 7px; }
+.rec-icon { font-size: 20px; }
+.rec-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.rec-meta { font-size: 12px; color: var(--text3); margin-top: 3px; }
+.seg-tag { padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; margin-left: auto; }
+
+/* ── ALGO STEPS ──────────────────────────────────────── */
+.algo-steps { display: flex; flex-direction: column; gap: 10px; }
+.algo-step { display: flex; gap: 12px; align-items: flex-start; }
+.step-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.algo-step p { font-size: 13px; color: var(--text2); line-height: 1.55; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.site-footer {
+  background: var(--accent2);
+  color: rgba(255,255,255,0.85);
+  padding: 0 36px;
+  margin-top: auto;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding: 44px 0 36px;
+}
+@media(max-width:900px){ .footer-top { grid-template-columns: 1fr; gap: 24px; } }
+.footer-brand p { font-size: 13px; color: rgba(255,255,255,0.6); line-height: 1.65; margin-top: 10px; max-width: 290px; }
+.footer-col h4 { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 14px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-col li { font-size: 13px; color: rgba(255,255,255,0.65); }
+.footer-col li span { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.4); }
+.footer-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.fpill { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 3px 10px; font-size: 11px; color: rgba(255,255,255,0.6); font-family: 'DM Mono', monospace; }
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding: 16px 0;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12px; color: rgba(255,255,255,0.4);
+}
+.footer-bottom a { color: #FBBF60; text-decoration: none; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header class="site-header">
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">Segment<span>IQ</span></div>
+  </div>
+
+  <div class="header-center">
+    <div class="htab on"  onclick="go('ov')">Overview</div>
+    <div class="htab"     onclick="go('cl')">Clusters</div>
+    <div class="htab"     onclick="go('pr')">Predict</div>
+    <div class="htab"     onclick="go('ins')">Insights</div>
+  </div>
+
+  <div class="header-right">
+    <div class="hbadge" id="dbadge">
+      <span class="dot-live"></span>
+      <span>Loading…</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ MAIN ═══ -->
+<main>
+
+<!-- OVERVIEW -->
+<div id="p-ov" class="panel on">
+  <div class="hero">
+    <div class="hero-text">
+      <h2>Customer Segmentation Analysis</h2>
+      <p>K-Means clustering groups retail customers by purchase behaviour — annual income, spending score and age — to reveal actionable segments and targeted marketing strategies.</p>
+    </div>
+    <div class="hero-stat">
+      <div class="hs"><div class="hs-val" id="hs-k">—</div><div class="hs-lbl">Clusters</div></div>
+      <div class="hs"><div class="hs-val" id="hs-sil">—</div><div class="hs-lbl">Silhouette</div></div>
+      <div class="hs"><div class="hs-val" id="hs-n">—</div><div class="hs-lbl">Customers</div></div>
+    </div>
+  </div>
+
+  <div class="g g4">
+    <div class="card metric-card" data-icon="👥"><div class="card-title">Total Customers</div><div class="metric" id="m1">—</div><div class="metric-sub">in dataset</div></div>
+    <div class="card metric-card" data-icon="💵"><div class="card-title">Avg Annual Income</div><div class="metric" id="m2">—</div><div class="metric-sub">k USD</div></div>
+    <div class="card metric-card" data-icon="🛒"><div class="card-title">Avg Spending Score</div><div class="metric" id="m3">—</div><div class="metric-sub">out of 100</div></div>
+    <div class="card metric-card" data-icon="📅"><div class="card-title">Avg Age</div><div class="metric" id="m4">—</div><div class="metric-sub">years old</div></div>
+  </div>
+
+  <div class="g g2">
+    <div class="card"><div class="card-title">Income Distribution</div><div class="chart-wrap" style="height:220px"><canvas id="cInc"></canvas></div></div>
+    <div class="card"><div class="card-title">Spending Score Distribution</div><div class="chart-wrap" style="height:220px"><canvas id="cSp"></canvas></div></div>
+  </div>
+  <div class="card"><div class="card-title">Raw Data — Income vs Spending Score</div><div class="chart-wrap" style="height:300px"><canvas id="cRaw"></canvas></div></div>
+</div>
+
+<!-- CLUSTERS -->
+<div id="p-cl" class="panel">
+  <div class="g g2">
+    <div class="card">
+      <div class="card-title">Algorithm Settings</div>
+      <div class="ctrl-row"><label>Clusters (K)</label><input type="range" id="kS" min="2" max="8" value="3" oninput="kV.textContent=this.value"><span class="ctrl-val" id="kV">3</span></div>
+      <div class="ctrl-row" style="margin-bottom:18px"><label>Max Iterations</label><input type="range" id="iS" min="50" max="500" value="300" oninput="iV.textContent=this.value"><span class="ctrl-val" id="iV">300</span></div>
+      <button class="btn btn-primary" onclick="recluster()">⚙ Re-run K-Means</button>
+      <button class="btn btn-secondary" onclick="go('pr')">Predict a Customer →</button>
+      <hr class="divider">
+      <div class="card-title">How K-Means Works</div>
+      <div class="algo-steps">
+        <div class="algo-step"><div class="step-num">1</div><p>Initialize K centroids using <strong>k-means++</strong> for smart placement</p></div>
+        <div class="algo-step"><div class="step-num">2</div><p>Assign each customer to their nearest centroid (Euclidean distance)</p></div>
+        <div class="algo-step"><div class="step-num">3</div><p>Recompute each centroid as the mean of its assigned points</p></div>
+        <div class="algo-step"><div class="step-num">4</div><p>Repeat until centroids converge or max iterations reached</p></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Elbow Curve — Optimal K</div>
+      <div class="chart-wrap" style="height:220px"><canvas id="cElbow"></canvas></div>
+      <hr class="divider">
+      <div style="font-size:12px;color:var(--text3);line-height:1.65">
+        The <strong style="color:var(--text)">elbow point</strong> is where WCSS drops sharply then flattens — the optimal K. Selected K highlighted in <span style="color:var(--terra)">terracotta</span>.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cluster Map — Annual Income vs Spending Score</div>
+    <div id="cleg" class="legend"></div>
+    <div class="chart-wrap" style="height:360px"><canvas id="cMap"></canvas></div>
+  </div>
+
+  <div class="card" style="margin-top:14px">
+    <div class="card-title">Cluster Profiles Summary</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Cluster</th><th>Segment Name</th><th>Size</th><th>Share</th><th>Avg Income</th><th>Avg Spending</th><th>Avg Age</th></tr></thead>
+        <tbody id="ptable"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PREDICT -->
+<div id="p-pr" class="panel">
+  <div class="g g2">
+    <div class="card">
+      <div class="card-title">Enter Customer Details</div>
+      <div class="form-grid">
+        <div class="field"><label>Age</label><input type="number" id="pAge" value="30" min="18" max="80"></div>
+        <div class="field"><label>Gender</label><select id="pGen"><option>Female</option><option>Male</option></select></div>
+        <div class="field"><label>Annual Income (k$)</label><input type="number" id="pInc" value="60" min="10" max="200"></div>
+        <div class="field"><label>Spending Score (1–100)</label><input type="number" id="pSpend" value="50" min="1" max="100"></div>
+        <div class="full" style="margin-top:8px"><button class="btn btn-primary" onclick="predict()">⚡ Classify Customer</button></div>
+      </div>
+    </div>
+    <div class="card" id="pRes" style="display:none">
+      <div class="card-title">Classification Result</div>
+      <div id="pOut"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:0">
+    <div class="card-title">Customer Position in Cluster Space</div>
+    <div class="chart-wrap" style="height:330px"><canvas id="cPred"></canvas></div>
+  </div>
+</div>
+
+<!-- INSIGHTS -->
+<div id="p-ins" class="panel">
+  <div class="g g3">
+    <div class="card"><div class="card-title">Cluster Size Distribution</div><div class="chart-wrap" style="height:240px"><canvas id="cSz"></canvas></div></div>
+    <div class="card"><div class="card-title">Spending Score by Cluster</div><div class="chart-wrap" style="height:240px"><canvas id="cSpend"></canvas></div></div>
+    <div class="card"><div class="card-title">PCA 2D Projection</div><div class="chart-wrap" style="height:240px"><canvas id="cPca"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">Marketing Recommendations by Segment</div>
+    <div id="recs"></div>
+  </div>
+</div>
+
+</main>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="logo">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:15px">📊</div>
+        <div class="logo-text" style="font-size:15px">Segment<span>IQ</span></div>
+      </div>
+      <p>Open-source retail analytics dashboard powered by K-Means clustering. Built for data scientists, retail strategists, and product teams.</p>
+      <div class="footer-pills">
+        <div class="fpill">Python 3.8+</div>
+        <div class="fpill">scikit-learn</div>
+        <div class="fpill">Chart.js</div>
+        <div class="fpill">pandas</div>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Algorithm</h4>
+      <ul>
+        <li>K-Means Clustering</li>
+        <li>k-means++ Init</li>
+        <li>Elbow Method</li>
+        <li>Silhouette Score</li>
+        <li>PCA Projection</li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Features</h4>
+      <ul>
+        <li>Annual Income</li>
+        <li>Spending Score</li>
+        <li>Age</li>
+        <li>Gender</li>
+        <li>Real-time Predict</li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>CLI Options</h4>
+      <ul>
+        <li><span>--data</span> CSV path</li>
+        <li><span>--k</span> force clusters</li>
+        <li><span>--port</span> server port</li>
+        <li>Dataset: Kaggle Mall</li>
+        <li>Built: 07 Apr 2026, 17:21</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 SegmentIQ · K-Means Customer Segmentation</span>
+    <span>Dataset: <a href="https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python" target="_blank">Kaggle Mall Customers</a> · Built with Python + scikit-learn</span>
+  </div>
+</footer>
+
+<!-- ═══ SCRIPT ═══ -->
+<script>
+const CL  = ["#C0533A", "#3D7A5F", "#C4963A", "#7B5EA7", "#4A8FA8", "#B85C8A", "#5F8A3D", "#A05C3A"];
+const D   = {"customers": [{"CustomerID": 1, "Gender": "Male", "Age": 19, "Annual_Income": 15, "Spending_Score": 39}, {"CustomerID": 2, "Gender": "Male", "Age": 21, "Annual_Income": 15, "Spending_Score": 81}, {"CustomerID": 3, "Gender": "Female", "Age": 20, "Annual_Income": 16, "Spending_Score": 6}, {"CustomerID": 4, "Gender": "Female", "Age": 23, "Annual_Income": 16, "Spending_Score": 77}, {"CustomerID": 5, "Gender": "Female", "Age": 31, "Annual_Income": 17, "Spending_Score": 40}, {"CustomerID": 6, "Gender": "Female", "Age": 22, "Annual_Income": 17, "Spending_Score": 76}, {"CustomerID": 7, "Gender": "Female", "Age": 35, "Annual_Income": 18, "Spending_Score": 6}, {"CustomerID": 8, "Gender": "Female", "Age": 23, "Annual_Income": 18, "Spending_Score": 94}, {"CustomerID": 9, "Gender": "Male", "Age": 64, "Annual_Income": 19, "Spending_Score": 3}, {"CustomerID": 10, "Gender": "Female", "Age": 30, "Annual_Income": 19, "Spending_Score": 72}, {"CustomerID": 11, "Gender": "Male", "Age": 67, "Annual_Income": 19, "Spending_Score": 14}, {"CustomerID": 12, "Gender": "Female", "Age": 35, "Annual_Income": 19, "Spending_Score": 99}, {"CustomerID": 13, "Gender": "Female", "Age": 58, "Annual_Income": 20, "Spending_Score": 15}, {"CustomerID": 14, "Gender": "Female", "Age": 24, "Annual_Income": 20, "Spending_Score": 77}, {"CustomerID": 15, "Gender": "Male", "Age": 37, "Annual_Income": 20, "Spending_Score": 13}, {"CustomerID": 16, "Gender": "Male", "Age": 22, "Annual_Income": 20, "Spending_Score": 79}, {"CustomerID": 17, "Gender": "Female", "Age": 35, "Annual_Income": 21, "Spending_Score": 35}, {"CustomerID": 18, "Gender": "Male", "Age": 20, "Annual_Income": 21, "Spending_Score": 66}, {"CustomerID": 19, "Gender": "Male", "Age": 52, "Annual_Income": 23, "Spending_Score": 29}, {"CustomerID": 20, "Gender": "Female", "Age": 35, "Annual_Income": 23, "Spending_Score": 98}, {"CustomerID": 21, "Gender": "Male", "Age": 35, "Annual_Income": 24, "Spending_Score": 35}, {"CustomerID": 22, "Gender": "Male", "Age": 25, "Annual_Income": 24, "Spending_Score": 73}, {"CustomerID": 23, "Gender": "Female", "Age": 46, "Annual_Income": 25, "Spending_Score": 5}, {"CustomerID": 24, "Gender": "Male", "Age": 31, "Annual_Income": 25, "Spending_Score": 73}, {"CustomerID": 25, "Gender": "Female", "Age": 54, "Annual_Income": 28, "Spending_Score": 14}, {"CustomerID": 26, "Gender": "Male", "Age": 29, "Annual_Income": 28, "Spending_Score": 82}, {"CustomerID": 27, "Gender": "Female", "Age": 45, "Annual_Income": 28, "Spending_Score": 32}, {"CustomerID": 28, "Gender": "Male", "Age": 35, "Annual_Income": 28, "Spending_Score": 61}, {"CustomerID": 29, "Gender": "Female", "Age": 40, "Annual_Income": 29, "Spending_Score": 31}, {"CustomerID": 30, "Gender": "Female", "Age": 23, "Annual_Income": 29, "Spending_Score": 87}, {"CustomerID": 31, "Gender": "Male", "Age": 60, "Annual_Income": 30, "Spending_Score": 4}, {"CustomerID": 32, "Gender": "Female", "Age": 21, "Annual_Income": 30, "Spending_Score": 73}, {"CustomerID": 33, "Gender": "Male", "Age": 53, "Annual_Income": 33, "Spending_Score": 4}, {"CustomerID": 34, "Gender": "Male", "Age": 18, "Annual_Income": 33, "Spending_Score": 92}, {"CustomerID": 35, "Gender": "Female", "Age": 49, "Annual_Income": 33, "Spending_Score": 14}, {"CustomerID": 36, "Gender": "Female", "Age": 21, "Annual_Income": 33, "Spending_Score": 81}, {"CustomerID": 37, "Gender": "Female", "Age": 42, "Annual_Income": 34, "Spending_Score": 17}, {"CustomerID": 38, "Gender": "Female", "Age": 30, "Annual_Income": 34, "Spending_Score": 73}, {"CustomerID": 39, "Gender": "Female", "Age": 36, "Annual_Income": 37, "Spending_Score": 26}, {"CustomerID": 40, "Gender": "Female", "Age": 20, "Annual_Income": 37, "Spending_Score": 75}, {"CustomerID": 41, "Gender": "Female", "Age": 65, "Annual_Income": 38, "Spending_Score": 35}, {"CustomerID": 42, "Gender": "Male", "Age": 24, "Annual_Income": 38, "Spending_Score": 92}, {"CustomerID": 43, "Gender": "Male", "Age": 48, "Annual_Income": 39, "Spending_Score": 36}, {"CustomerID": 44, "Gender": "Female", "Age": 31, "Annual_Income": 39, "Spending_Score": 61}, {"CustomerID": 45, "Gender": "Female", "Age": 49, "Annual_Income": 39, "Spending_Score": 28}, {"CustomerID": 46, "Gender": "Female", "Age": 24, "Annual_Income": 39, "Spending_Score": 65}, {"CustomerID": 47, "Gender": "Female", "Age": 50, "Annual_Income": 40, "Spending_Score": 55}, {"CustomerID": 48, "Gender": "Female", "Age": 27, "Annual_Income": 40, "Spending_Score": 47}, {"CustomerID": 49, "Gender": "Female", "Age": 29, "Annual_Income": 40, "Spending_Score": 42}, {"CustomerID": 50, "Gender": "Female", "Age": 31, "Annual_Income": 40, "Spending_Score": 42}, {"CustomerID": 51, "Gender": "Female", "Age": 49, "Annual_Income": 42, "Spending_Score": 52}, {"CustomerID": 52, "Gender": "Male", "Age": 33, "Annual_Income": 42, "Spending_Score": 60}, {"CustomerID": 53, "Gender": "Female", "Age": 31, "Annual_Income": 43, "Spending_Score": 54}, {"CustomerID": 54, "Gender": "Male", "Age": 59, "Annual_Income": 43, "Spending_Score": 60}, {"CustomerID": 55, "Gender": "Female", "Age": 50, "Annual_Income": 43, "Spending_Score": 45}, {"CustomerID": 56, "Gender": "Male", "Age": 47, "Annual_Income": 43, "Spending_Score": 41}, {"CustomerID": 57, "Gender": "Female", "Age": 51, "Annual_Income": 44, "Spending_Score": 50}, {"CustomerID": 58, "Gender": "Male", "Age": 69, "Annual_Income": 44, "Spending_Score": 46}, {"CustomerID": 59, "Gender": "Female", "Age": 27, "Annual_Income": 46, "Spending_Score": 51}, {"CustomerID": 60, "Gender": "Male", "Age": 53, "Annual_Income": 46, "Spending_Score": 46}, {"CustomerID": 61, "Gender": "Male", "Age": 70, "Annual_Income": 46, "Spending_Score": 56}, {"CustomerID": 62, "Gender": "Male", "Age": 19, "Annual_Income": 46, "Spending_Score": 55}, {"CustomerID": 63, "Gender": "Female", "Age": 67, "Annual_Income": 47, "Spending_Score": 52}, {"CustomerID": 64, "Gender": "Female", "Age": 54, "Annual_Income": 47, "Spending_Score": 59}, {"CustomerID": 65, "Gender": "Male", "Age": 63, "Annual_Income": 48, "Spending_Score": 51}, {"CustomerID": 66, "Gender": "Male", "Age": 18, "Annual_Income": 48, "Spending_Score": 59}, {"CustomerID": 67, "Gender": "Female", "Age": 43, "Annual_Income": 48, "Spending_Score": 50}, {"CustomerID": 68, "Gender": "Female", "Age": 68, "Annual_Income": 48, "Spending_Score": 48}, {"CustomerID": 69, "Gender": "Male", "Age": 19, "Annual_Income": 48, "Spending_Score": 59}, {"CustomerID": 70, "Gender": "Female", "Age": 32, "Annual_Income": 48, "Spending_Score": 47}, {"CustomerID": 71, "Gender": "Male", "Age": 70, "Annual_Income": 49, "Spending_Score": 55}, {"CustomerID": 72, "Gender": "Female", "Age": 47, "Annual_Income": 49, "Spending_Score": 42}, {"CustomerID": 73, "Gender": "Female", "Age": 60, "Annual_Income": 50, "Spending_Score": 49}, {"CustomerID": 74, "Gender": "Female", "Age": 60, "Annual_Income": 50, "Spending_Score": 56}, {"CustomerID": 75, "Gender": "Male", "Age": 59, "Annual_Income": 54, "Spending_Score": 47}, {"CustomerID": 76, "Gender": "Male", "Age": 26, "Annual_Income": 54, "Spending_Score": 54}, {"CustomerID": 77, "Gender": "Female", "Age": 45, "Annual_Income": 54, "Spending_Score": 53}, {"CustomerID": 78, "Gender": "Male", "Age": 40, "Annual_Income": 54, "Spending_Score": 48}, {"CustomerID": 79, "Gender": "Female", "Age": 23, "Annual_Income": 54, "Spending_Score": 52}, {"CustomerID": 80, "Gender": "Female", "Age": 49, "Annual_Income": 54, "Spending_Score": 42}, {"CustomerID": 81, "Gender": "Male", "Age": 57, "Annual_Income": 54, "Spending_Score": 51}, {"CustomerID": 82, "Gender": "Male", "Age": 38, "Annual_Income": 54, "Spending_Score": 55}, {"CustomerID": 83, "Gender": "Male", "Age": 67, "Annual_Income": 54, "Spending_Score": 41}, {"CustomerID": 84, "Gender": "Female", "Age": 46, "Annual_Income": 54, "Spending_Score": 44}, {"CustomerID": 85, "Gender": "Female", "Age": 21, "Annual_Income": 54, "Spending_Score": 57}, {"CustomerID": 86, "Gender": "Male", "Age": 48, "Annual_Income": 54, "Spending_Score": 46}, {"CustomerID": 87, "Gender": "Female", "Age": 55, "Annual_Income": 57, "Spending_Score": 58}, {"CustomerID": 88, "Gender": "Female", "Age": 22, "Annual_Income": 57, "Spending_Score": 55}, {"CustomerID": 89, "Gender": "Female", "Age": 34, "Annual_Income": 58, "Spending_Score": 60}, {"CustomerID": 90, "Gender": "Female", "Age": 50, "Annual_Income": 58, "Spending_Score": 46}, {"CustomerID": 91, "Gender": "Female", "Age": 68, "Annual_Income": 59, "Spending_Score": 55}, {"CustomerID": 92, "Gender": "Male", "Age": 18, "Annual_Income": 59, "Spending_Score": 41}, {"CustomerID": 93, "Gender": "Male", "Age": 48, "Annual_Income": 60, "Spending_Score": 49}, {"CustomerID": 94, "Gender": "Female", "Age": 40, "Annual_Income": 60, "Spending_Score": 40}, {"CustomerID": 95, "Gender": "Female", "Age": 32, "Annual_Income": 60, "Spending_Score": 42}, {"CustomerID": 96, "Gender": "Male", "Age": 24, "Annual_Income": 60, "Spending_Score": 52}, {"CustomerID": 97, "Gender": "Female", "Age": 47, "Annual_Income": 60, "Spending_Score": 47}, {"CustomerID": 98, "Gender": "Female", "Age": 27, "Annual_Income": 60, "Spending_Score": 50}, {"CustomerID": 99, "Gender": "Male", "Age": 48, "Annual_Income": 61, "Spending_Score": 42}, {"CustomerID": 100, "Gender": "Male", "Age": 20, "Annual_Income": 61, "Spending_Score": 49}, {"CustomerID": 101, "Gender": "Female", "Age": 23, "Annual_Income": 62, "Spending_Score": 41}, {"CustomerID": 102, "Gender": "Female", "Age": 49, "Annual_Income": 62, "Spending_Score": 48}, {"CustomerID": 103, "Gender": "Male", "Age": 67, "Annual_Income": 62, "Spending_Score": 59}, {"CustomerID": 104, "Gender": "Male", "Age": 26, "Annual_Income": 62, "Spending_Score": 55}, {"CustomerID": 105, "Gender": "Male", "Age": 49, "Annual_Income": 62, "Spending_Score": 56}, {"CustomerID": 106, "Gender": "Female", "Age": 21, "Annual_Income": 62, "Spending_Score": 42}, {"CustomerID": 107, "Gender": "Female", "Age": 66, "Annual_Income": 63, "Spending_Score": 50}, {"CustomerID": 108, "Gender": "Male", "Age": 54, "Annual_Income": 63, "Spending_Score": 46}, {"CustomerID": 109, "Gender": "Male", "Age": 68, "Annual_Income": 63, "Spending_Score": 43}, {"CustomerID": 110, "Gender": "Male", "Age": 66, "Annual_Income": 63, "Spending_Score": 48}, {"CustomerID": 111, "Gender": "Male", "Age": 65, "Annual_Income": 63, "Spending_Score": 52}, {"CustomerID": 112, "Gender": "Female", "Age": 19, "Annual_Income": 63, "Spending_Score": 54}, {"CustomerID": 113, "Gender": "Female", "Age": 38, "Annual_Income": 64, "Spending_Score": 42}, {"CustomerID": 114, "Gender": "Male", "Age": 19, "Annual_Income": 64, "Spending_Score": 46}, {"CustomerID": 115, "Gender": "Female", "Age": 18, "Annual_Income": 65, "Spending_Score": 48}, {"CustomerID": 116, "Gender": "Female", "Age": 19, "Annual_Income": 65, "Spending_Score": 50}, {"CustomerID": 117, "Gender": "Female", "Age": 63, "Annual_Income": 65, "Spending_Score": 43}, {"CustomerID": 118, "Gender": "Female", "Age": 49, "Annual_Income": 65, "Spending_Score": 59}, {"CustomerID": 119, "Gender": "Female", "Age": 51, "Annual_Income": 67, "Spending_Score": 43}, {"CustomerID": 120, "Gender": "Female", "Age": 50, "Annual_Income": 67, "Spending_Score": 57}, {"CustomerID": 121, "Gender": "Male", "Age": 27, "Annual_Income": 67, "Spending_Score": 56}, {"CustomerID": 122, "Gender": "Female", "Age": 38, "Annual_Income": 67, "Spending_Score": 40}, {"CustomerID": 123, "Gender": "Female", "Age": 40, "Annual_Income": 69, "Spending_Score": 58}, {"CustomerID": 124, "Gender": "Male", "Age": 39, "Annual_Income": 69, "Spending_Score": 91}, {"CustomerID": 125, "Gender": "Female", "Age": 23, "Annual_Income": 70, "Spending_Score": 29}, {"CustomerID": 126, "Gender": "Female", "Age": 31, "Annual_Income": 70, "Spending_Score": 77}, {"CustomerID": 127, "Gender": "Male", "Age": 43, "Annual_Income": 71, "Spending_Score": 35}, {"CustomerID": 128, "Gender": "Male", "Age": 40, "Annual_Income": 71, "Spending_Score": 95}, {"CustomerID": 129, "Gender": "Male", "Age": 59, "Annual_Income": 71, "Spending_Score": 11}, {"CustomerID": 130, "Gender": "Male", "Age": 38, "Annual_Income": 71, "Spending_Score": 75}, {"CustomerID": 131, "Gender": "Male", "Age": 47, "Annual_Income": 71, "Spending_Score": 9}, {"CustomerID": 132, "Gender": "Male", "Age": 39, "Annual_Income": 71, "Spending_Score": 75}, {"CustomerID": 133, "Gender": "Female", "Age": 25, "Annual_Income": 72, "Spending_Score": 34}, {"CustomerID": 134, "Gender": "Female", "Age": 31, "Annual_Income": 72, "Spending_Score": 71}, {"CustomerID": 135, "Gender": "Male", "Age": 20, "Annual_Income": 73, "Spending_Score": 5}, {"CustomerID": 136, "Gender": "Female", "Age": 29, "Annual_Income": 73, "Spending_Score": 88}, {"CustomerID": 137, "Gender": "Female", "Age": 44, "Annual_Income": 73, "Spending_Score": 7}, {"CustomerID": 138, "Gender": "Male", "Age": 32, "Annual_Income": 73, "Spending_Score": 73}, {"CustomerID": 139, "Gender": "Male", "Age": 19, "Annual_Income": 74, "Spending_Score": 10}, {"CustomerID": 140, "Gender": "Female", "Age": 35, "Annual_Income": 74, "Spending_Score": 72}, {"CustomerID": 141, "Gender": "Female", "Age": 57, "Annual_Income": 75, "Spending_Score": 5}, {"CustomerID": 142, "Gender": "Male", "Age": 32, "Annual_Income": 75, "Spending_Score": 93}, {"CustomerID": 143, "Gender": "Female", "Age": 28, "Annual_Income": 76, "Spending_Score": 40}, {"CustomerID": 144, "Gender": "Female", "Age": 32, "Annual_Income": 76, "Spending_Score": 87}, {"CustomerID": 145, "Gender": "Male", "Age": 25, "Annual_Income": 77, "Spending_Score": 12}, {"CustomerID": 146, "Gender": "Male", "Age": 28, "Annual_Income": 77, "Spending_Score": 97}, {"CustomerID": 147, "Gender": "Male", "Age": 48, "Annual_Income": 77, "Spending_Score": 36}, {"CustomerID": 148, "Gender": "Female", "Age": 32, "Annual_Income": 77, "Spending_Score": 74}, {"CustomerID": 149, "Gender": "Female", "Age": 34, "Annual_Income": 78, "Spending_Score": 22}, {"CustomerID": 150, "Gender": "Male", "Age": 34, "Annual_Income": 78, "Spending_Score": 90}, {"CustomerID": 151, "Gender": "Male", "Age": 43, "Annual_Income": 78, "Spending_Score": 17}, {"CustomerID": 152, "Gender": "Male", "Age": 39, "Annual_Income": 78, "Spending_Score": 88}, {"CustomerID": 153, "Gender": "Female", "Age": 44, "Annual_Income": 78, "Spending_Score": 20}, {"CustomerID": 154, "Gender": "Female", "Age": 38, "Annual_Income": 78, "Spending_Score": 76}, {"CustomerID": 155, "Gender": "Female", "Age": 47, "Annual_Income": 78, "Spending_Score": 16}, {"CustomerID": 156, "Gender": "Female", "Age": 27, "Annual_Income": 78, "Spending_Score": 89}, {"CustomerID": 157, "Gender": "Male", "Age": 37, "Annual_Income": 78, "Spending_Score": 1}, {"CustomerID": 158, "Gender": "Female", "Age": 30, "Annual_Income": 78, "Spending_Score": 78}, {"CustomerID": 159, "Gender": "Male", "Age": 34, "Annual_Income": 78, "Spending_Score": 1}, {"CustomerID": 160, "Gender": "Female", "Age": 30, "Annual_Income": 78, "Spending_Score": 73}, {"CustomerID": 161, "Gender": "Female", "Age": 56, "Annual_Income": 79, "Spending_Score": 35}, {"CustomerID": 162, "Gender": "Female", "Age": 29, "Annual_Income": 79, "Spending_Score": 83}, {"CustomerID": 163, "Gender": "Male", "Age": 19, "Annual_Income": 81, "Spending_Score": 5}, {"CustomerID": 164, "Gender": "Female", "Age": 31, "Annual_Income": 81, "Spending_Score": 93}, {"CustomerID": 165, "Gender": "Male", "Age": 50, "Annual_Income": 85, "Spending_Score": 26}, {"CustomerID": 166, "Gender": "Female", "Age": 36, "Annual_Income": 85, "Spending_Score": 75}, {"CustomerID": 167, "Gender": "Male", "Age": 42, "Annual_Income": 86, "Spending_Score": 20}, {"CustomerID": 168, "Gender": "Female", "Age": 33, "Annual_Income": 86, "Spending_Score": 95}, {"CustomerID": 169, "Gender": "Female", "Age": 36, "Annual_Income": 87, "Spending_Score": 27}, {"CustomerID": 170, "Gender": "Male", "Age": 32, "Annual_Income": 87, "Spending_Score": 63}, {"CustomerID": 171, "Gender": "Male", "Age": 40, "Annual_Income": 87, "Spending_Score": 13}, {"CustomerID": 172, "Gender": "Male", "Age": 28, "Annual_Income": 87, "Spending_Score": 75}, {"CustomerID": 173, "Gender": "Male", "Age": 36, "Annual_Income": 87, "Spending_Score": 10}, {"CustomerID": 174, "Gender": "Male", "Age": 36, "Annual_Income": 87, "Spending_Score": 92}, {"CustomerID": 175, "Gender": "Female", "Age": 52, "Annual_Income": 88, "Spending_Score": 13}, {"CustomerID": 176, "Gender": "Female", "Age": 30, "Annual_Income": 88, "Spending_Score": 86}, {"CustomerID": 177, "Gender": "Male", "Age": 58, "Annual_Income": 88, "Spending_Score": 15}, {"CustomerID": 178, "Gender": "Male", "Age": 27, "Annual_Income": 88, "Spending_Score": 69}, {"CustomerID": 179, "Gender": "Male", "Age": 59, "Annual_Income": 93, "Spending_Score": 14}, {"CustomerID": 180, "Gender": "Male", "Age": 35, "Annual_Income": 93, "Spending_Score": 90}, {"CustomerID": 181, "Gender": "Female", "Age": 37, "Annual_Income": 97, "Spending_Score": 32}, {"CustomerID": 182, "Gender": "Female", "Age": 32, "Annual_Income": 97, "Spending_Score": 86}, {"CustomerID": 183, "Gender": "Male", "Age": 46, "Annual_Income": 98, "Spending_Score": 15}, {"CustomerID": 184, "Gender": "Female", "Age": 29, "Annual_Income": 98, "Spending_Score": 88}, {"CustomerID": 185, "Gender": "Female", "Age": 41, "Annual_Income": 99, "Spending_Score": 39}, {"CustomerID": 186, "Gender": "Male", "Age": 30, "Annual_Income": 99, "Spending_Score": 97}, {"CustomerID": 187, "Gender": "Female", "Age": 54, "Annual_Income": 101, "Spending_Score": 24}, {"CustomerID": 188, "Gender": "Male", "Age": 28, "Annual_Income": 101, "Spending_Score": 68}, {"CustomerID": 189, "Gender": "Female", "Age": 41, "Annual_Income": 103, "Spending_Score": 17}, {"CustomerID": 190, "Gender": "Female", "Age": 36, "Annual_Income": 103, "Spending_Score": 85}, {"CustomerID": 191, "Gender": "Female", "Age": 34, "Annual_Income": 103, "Spending_Score": 23}, {"CustomerID": 192, "Gender": "Female", "Age": 32, "Annual_Income": 103, "Spending_Score": 69}, {"CustomerID": 193, "Gender": "Male", "Age": 33, "Annual_Income": 113, "Spending_Score": 8}, {"CustomerID": 194, "Gender": "Female", "Age": 38, "Annual_Income": 113, "Spending_Score": 91}, {"CustomerID": 195, "Gender": "Female", "Age": 47, "Annual_Income": 120, "Spending_Score": 16}, {"CustomerID": 196, "Gender": "Female", "Age": 35, "Annual_Income": 120, "Spending_Score": 79}, {"CustomerID": 197, "Gender": "Female", "Age": 45, "Annual_Income": 126, "Spending_Score": 28}, {"CustomerID": 198, "Gender": "Male", "Age": 32, "Annual_Income": 126, "Spending_Score": 74}, {"CustomerID": 199, "Gender": "Male", "Age": 32, "Annual_Income": 137, "Spending_Score": 18}, {"CustomerID": 200, "Gender": "Male", "Age": 30, "Annual_Income": 137, "Spending_Score": 83}], "ks": [2, 3, 4, 5, 6, 7, 8, 9, 10], "wcss": [269.69, 157.7, 108.92, 65.57, 55.06, 44.86, 37.23, 32.39, 29.98], "sil": [0.3213, 0.4666, 0.4939, 0.5547, 0.5399, 0.5281, 0.4552, 0.4571, 0.4432], "bestK": 3, "pca": [[-1.5371091968509976, -0.9222070469387349], [-0.3841676657655048, -2.0751485780242276], [-2.41600196621679, 0.010665446829817656], [-0.46698175890560056, -1.9383547604813722], [-1.455678483612869, -0.895678311371344], [-0.4674428855395895, -1.8839139094446233], [-2.3620222418140306, 0.06464517123257743], [0.05366477569842993, -2.3510418462798834], [-2.417385346118757, 0.17398799994006417], [-0.5232671164783053, -1.720130229700388], [-2.1154244689296995, -0.12797287724899345], [0.21790958207665442, -2.4613069282553477], [-2.060983617892951, -0.12843400388298265], [-0.359022310100081, -1.8303953116758527], [-2.1158855955636886, -0.07353202621224489], [-0.3041203324293433, -1.8852972893465905], [-1.484973978984194, -0.6504639183889803], [-0.633993325087759, -1.5014445722854153], [-1.5957001875936474, -0.4317782609740072], [0.29841804204680483, -2.3258964906144595], [-1.4040043923800545, -0.5694943317848408], [-0.3608668166360372, -1.6126319075288578], [-2.20054419523974, 0.2810251954776055], [-0.3338769544346572, -1.5856420453274778], [-1.8725157091172813, 0.1149358825634252], [-0.005848468312197831, -1.7517313582416583], [-1.3783979100806414, -0.37918191647321453], [-0.5823192338549442, -1.175260592698912], [-1.3788590367146305, -0.32474106543646586], [0.15839633806602627, -1.8619964402171227], [-2.0930458730682098, 0.44342549531987363], [-0.19892764342775793, -1.4506927343205784], [-2.01207628646407, 0.5243950819240131], [0.40361073104839024, -1.8912919355884477], [-1.737566398110382, 0.24988519357032443], [0.10164985385933258, -1.58933105839939], [-1.6282235694028955, 0.19452208926559775], [-0.09096819462223858, -1.342733285515059], [-1.300195083280436, 0.02843277635141736], [0.04490336965263874, -1.3166656765816573], [-1.0261463215607365, -0.19163626096552272], [0.5385600420552894, -1.7563426245815486], [-0.9717054705239876, -0.1920973875995117], [-0.2854307496397658, -0.8783721084837335], [-1.1913133812069385, 0.027510523083439264], [-0.17562679429829034, -0.9881760638252091], [-0.4231468204505991, -0.6866763132701404], [-0.6427547311335502, -0.4670684025871894], [-0.7800096753103946, -0.32981345841034504], [-0.7800096753103946, -0.32981345841034504], [-0.45152006255394594, -0.550343622361274], [-0.231912151870995, -0.769951533044225], [-0.3696282226818284, -0.5782557378306319], [-0.20492228966961518, -0.7429616708428451], [-0.6166871222001483, -0.331196838312312], [-0.7264910775416238, -0.22139288297083654], [-0.45244231582192407, -0.44146192028777653], [-0.5622462711633995, -0.33165796494630106], [-0.37101160258379545, -0.4149331847203857], [-0.5082665467606399, -0.27767824054354134], [-0.23375665840695112, -0.5521881288972301], [-0.26120764724231993, -0.5247371400618612], [-0.31657075154704667, -0.4153943113543747], [-0.1244138296994646, -0.6075512332019568], [-0.3170318781810358, -0.36095346031762604], [-0.09742396749808482, -0.580561371000577], [-0.3444828670164047, -0.33350247148225715], [-0.3993848446871424, -0.2786004938115194], [-0.09742396749808482, -0.580561371000577], [-0.42683583352251125, -0.2511495049761506], [-0.18023806063818043, -0.4437675534577217], [-0.5371009154979758, -0.08690469859792632], [-0.31795413144901374, -0.25207175824412853], [-0.12579720960143168, -0.4442286800917106], [-0.2648966603142321, -0.08921033176787141], [-0.07273973846665004, -0.2813672536154535], [-0.1001907273020189, -0.2539162647800846], [-0.23744567147886325, -0.11666132060324028], [-0.12764171613738778, -0.22646527594471574], [-0.40215160449107645, 0.04804461240897296], [-0.15509270497275665, -0.19901428710934688], [-0.04528874963128115, -0.3088182424508224], [-0.42960259332644535, 0.07549560124434183], [-0.3472496268203387, -0.006857365261764784], [0.009613228039456577, -0.3637202201215601], [-0.292347649149601, -0.06175934293250253], [0.11803380347896503, -0.3102016223527894], [0.03568083697285842, -0.22784865584668282], [0.19992564335108265, -0.3381137378221473], [-0.18438820034408157, 0.0462001058730169], [0.08966056137561813, -0.1738689314439231], [-0.2946532823195461, 0.21044491225124112], [-0.04805550943521525, 0.017826863769669996], [-0.2951144089535351, 0.26488576328798985], [-0.24021243128279735, 0.20998378561725212], [0.034297457070891366, -0.06452610273643662], [-0.102957487105953, 0.07272884144040773], [-0.02060452059984638, -0.00962412506569888], [-0.2132225690814175, 0.23697364781863195], [-0.021065647233835395, 0.04481672597104985], [-0.21368369571540655, 0.2914144988553807], [-0.02152677386782442, 0.09925757700779857], [0.2804341033212332, -0.202703300181259], [0.1706301479797577, -0.09289934483978354], [0.19808113681512654, -0.12035033367515241], [-0.18623270688003765, 0.26396351002001184], [0.06036506600429319, 0.07134546153844068], [-0.049438889337182296, 0.18114941687991618], [-0.1317918558432889, 0.2635023833860228], [0.005463088333555443, 0.12624743920917844], [0.11526704367503092, 0.016443483867702946], [0.17016902134576867, -0.038458493803034795], [-0.13225298247727793, 0.31794323442277156], [-0.022449027135802442, 0.20813927908129604], [0.05944281273631515, 0.18022716361193813], [0.1143447904070529, 0.1253251859412004], [-0.0778121314405292, 0.3174821077887825], [0.36140368992537275, -0.12173371357711947], [-0.02383240703776948, 0.3714618321915422], [0.36048143665739474, -0.012852011503621976], [0.33303044782202584, 0.014598977331746886], [-0.10618537354387612, 0.45381479869764885], [0.44191214989552335, 0.013676724063768865], [1.347794781462696, -0.892205907503404], [-0.32717666412879415, 0.836745262490846], [0.9904707999689117, -0.48090220160685987], [-0.13548086891520103, 0.6990291916800125], [1.5115784612069312, -0.9480301384421198], [-0.794304600964054, 1.3578529237288655], [0.9625586844995538, -0.39901036173474225], [-0.8492065786347918, 1.4127549013996032], [0.9625586844995538, -0.39901036173474225], [-0.13594199554919004, 0.7534700427167613], [0.8797445913594583, -0.26221654419188695], [-0.9050308095735076, 1.5765385811438384], [1.373401263762109, -0.701893492191778], [-0.8501288319027698, 1.5216366034731008], [0.9616364312315757, -0.2901286596612448], [-0.7407860031952833, 1.4662734991683741], [0.9611753045975867, -0.235687808624496], [-0.8510510851707478, 1.6305183055465982], [1.564635932341713, -0.7851687119658626], [0.1367233862685426, 0.6967235585100675], [1.4269198615308796, -0.5934729167522694], [-0.604914438920406, 1.492341108101776], [1.7284196120859483, -0.8409929429045784], [0.053909293128447014, 0.8335173760529229], [1.0970468688724642, -0.20962019969109422], [-0.3034146883653373, 1.244821081949467], [1.563252552439746, -0.6218461588556164], [-0.44066963254218183, 1.3820760261263114], [1.5083505747690082, -0.5669441811848787], [-0.3583166660360751, 1.2997230596202045], [1.1789387087445815, -0.23753231516045206], [-0.4681206213775506, 1.40952701496168], [1.535801563604377, -0.5943951700202476], [-0.8798854539080838, 1.8212918474922133], [1.2338406864153193, -0.2924342928311898], [-0.8798854539080838, 1.8212918474922133], [1.096585742238475, -0.1551793486543455], [0.08043802869583784, 0.9149480892910514], [1.3980854927935438, -0.4026993748066544], [-0.6891119119624687, 1.7924574787548773], [1.726575105549992, -0.6232295387575835], [-0.004681697614202899, 1.3239461620176505], [1.3404167553188717, -0.021152290915424275], [-0.14239776842503624, 1.5156419572312434], [1.9164263942276292, -0.5431822054214219], [0.07674901562392564, 1.3504748975850411], [1.064984613697205, 0.36223929951176187], [-0.3075648280712385, 1.7347887412802054], [1.3943964797216315, 0.03282743348733539], [-0.3899177945773452, 1.8171417077863121], [1.8610632899229023, -0.4338393767139355], [-0.28057496586985875, 1.7617786034815852], [1.723347219112069, -0.24214358150034246], [-0.225672988199121, 1.7068766258108474], [1.2566804089107981, 0.2245232287009284], [-0.11817466602759052, 1.8692769256531159], [1.9681004854604438, -0.21699822583491854], [0.4839025818145686, 1.4831185754219953], [1.9662559789244876, 0.0007651783120763194], [0.04422563381467778, 1.976775247824646], [2.048147818796606, -0.027146937157281444], [0.7300392280649104, 1.344941377977173], [2.322196580516305, -0.2472159744742215], [0.372254119937137, 1.8106859349104656], [1.5800976286933672, 0.6028424261542353], [0.2340769224923145, 2.056822581160808], [2.100744163297398, 0.1901553403557244], [0.3987828555045278, 1.8921166481485943], [1.661528341931496, 0.6293711617216262], [0.2569166449877933, 2.5737801026929263], [2.53534871832341, 0.29534802935730975], [0.6654535910804033, 2.543101227419634], [2.3948658877086424, 0.813688930791395], [1.1568046303131088, 2.3756285346034867], [2.4195501167400773, 1.1128830481765186], [1.1791832261745987, 2.947026907172354], [2.9634975004735757, 1.1627126328733772]], "pcaVar": [50.5, 49.5]};
+let   CLS = {"labels": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1], "centroids": [[87.0, 18.63157894736841], [86.53846153846153, 82.12820512820514], [44.154471544715435, 49.829268292682926]], "profile": [{"name": "Affluent Savers", "rec": "\ud83d\udca1 Untapped potential \u2014 aspirational upsell campaigns, prestige product showcases.", "icon": "\ud83c\udfe6", "size": 38, "pct": 19.0, "income": 87.0, "spend": 18.6, "age": 40.4}, {"name": "High Rollers", "rec": "\ud83c\udfc6 VIP priority \u2014 exclusive early access, premium loyalty rewards, white-glove service.", "icon": "\ud83d\udc8e", "size": 39, "pct": 19.5, "income": 86.5, "spend": 82.1, "age": 32.7}, {"name": "Budget Shoppers", "rec": "\ud83d\udcb0 Price-sensitive \u2014 value bundles, cashback programs, referral incentives.", "icon": "\ud83e\ude99", "size": 123, "pct": 61.5, "income": 44.2, "spend": 49.8, "age": 40.3}]};
+const charts = {};
+
+function go(id){
+  document.querySelectorAll('.htab').forEach((t,i)=>t.classList.toggle('on',['ov','cl','pr','ins'][i]===id));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+id));
+}
+function kill(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function mk(id,cfg){kill(id);charts[id]=new Chart(document.getElementById(id),cfg);}
+
+function lightGrid(){return{color:'rgba(61,122,95,0.08)',borderColor:'rgba(61,122,95,0.08)'};}
+function baseTicks(){return{color:'#9C8C7A',font:{size:11,family:"'DM Sans'"}}}
+function baseTitle(t){return{display:true,text:t,color:'#6B5E4E',font:{size:11,family:"'DM Sans'"}}}
+function bOpts(xl,yl){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle(xl)},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle(yl)}}}}
+function avg(a,k){return a.reduce((s,r)=>s+r[k],0)/a.length;}
+function hist(vals,bins=10){
+  const mn=Math.min(...vals),mx=Math.max(...vals),bw=(mx-mn)/bins;
+  const lb=Array.from({length:bins},(_,i)=>(mn+i*bw).toFixed(0));
+  const ct=new Array(bins).fill(0);
+  vals.forEach(v=>{let b=Math.floor((v-mn)/bw);if(b===bins)b--;ct[b]++;});
+  return{labels:lb,data:ct};
+}
+
+function init(){
+  const C=D.customers;
+  document.getElementById('dbadge').innerHTML=`<span class="dot-live"></span><span>${C.length} customers loaded</span>`;
+  document.getElementById('hs-k').textContent=D.bestK;
+  document.getElementById('hs-sil').textContent=D.sil[D.bestK-2].toFixed(3);
+  document.getElementById('hs-n').textContent=C.length;
+  document.getElementById('m1').textContent=C.length;
+  document.getElementById('m2').textContent='$'+avg(C,'Annual_Income').toFixed(1)+'k';
+  document.getElementById('m3').textContent=avg(C,'Spending_Score').toFixed(1);
+  document.getElementById('m4').textContent=avg(C,'Age').toFixed(1);
+
+  const ih=hist(C.map(r=>r.Annual_Income));
+  mk('cInc',{type:'bar',data:{labels:ih.labels,datasets:[{data:ih.data,backgroundColor:'rgba(61,122,95,0.25)',borderColor:'#3D7A5F',borderWidth:1.5,borderRadius:4}]},options:bOpts('Income (k$)','Count')});
+  const sh=hist(C.map(r=>r.Spending_Score));
+  mk('cSp',{type:'bar',data:{labels:sh.labels,datasets:[{data:sh.data,backgroundColor:'rgba(192,83,58,0.2)',borderColor:'#C0533A',borderWidth:1.5,borderRadius:4}]},options:bOpts('Spending Score','Count')});
+  mk('cRaw',{type:'scatter',data:{datasets:[{data:C.map(r=>({x:r.Annual_Income,y:r.Spending_Score})),backgroundColor:'rgba(61,122,95,0.35)',pointRadius:4,pointHoverRadius:6}]},options:bOpts('Annual Income (k$)','Spending Score')});
+
+  mk('cElbow',{type:'line',data:{labels:D.ks,datasets:[{data:D.wcss,borderColor:'#3D7A5F',backgroundColor:'rgba(61,122,95,0.08)',fill:true,tension:.4,pointRadius:5,
+    pointBackgroundColor:D.ks.map(k=>k===D.bestK?'#C0533A':'#3D7A5F'),
+    pointRadius:D.ks.map(k=>k===D.bestK?8:5)
+  }]},options:{...bOpts('K','WCSS'),plugins:{legend:{display:false},tooltip:{callbacks:{title:([i])=>'K = '+i.label}}}}});
+
+  drawClusters(); drawInsights(); updatePredChart();
+}
+
+function drawClusters(){
+  const C=D.customers,L=CLS.labels,k=CLS.profile.length;
+  const ds=CLS.profile.map((p,i)=>({label:'C'+i,data:C.filter((_,j)=>L[j]===i).map(r=>({x:r.Annual_Income,y:r.Spending_Score})),backgroundColor:CL[i]+'99',pointRadius:5,pointHoverRadius:7}));
+  ds.push({label:'Centroids',data:CLS.centroids.map(c=>({x:c[0],y:c[1]})),backgroundColor:'#1F1A14',pointRadius:11,pointStyle:'star',pointHoverRadius:14});
+  mk('cMap',{type:'scatter',data:{datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Annual Income (k$)')},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Spending Score')}}}});
+
+  document.getElementById('cleg').innerHTML=CLS.profile.map((p,i)=>
+    `<div class="legend-item"><span class="ldot" style="background:${CL[i]}"></span>C${i} — ${p.icon} ${p.name}</div>`).join('');
+
+  document.getElementById('ptable').innerHTML=CLS.profile.map((p,i)=>`
+    <tr>
+      <td><span class="ldot" style="background:${CL[i]};display:inline-block;margin-right:6px"></span><strong>C${i}</strong></td>
+      <td>${p.icon} ${p.name}</td>
+      <td>${p.size}</td>
+      <td><span style="color:${CL[i]};font-weight:700">${p.pct}%</span></td>
+      <td>$${p.income}k</td><td>${p.spend}</td><td>${p.age}</td>
+    </tr>`).join('');
+}
+
+function drawInsights(){
+  const k=CLS.profile.length;
+  mk('cSz',{type:'bar',data:{labels:CLS.profile.map((_,i)=>'C'+i),datasets:[{data:CLS.profile.map(p=>p.size),backgroundColor:CL.slice(0,k),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:baseTicks()},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Customers')}}}});
+  mk('cSpend',{type:'bar',data:{labels:CLS.profile.map((_,i)=>'C'+i),datasets:[{data:CLS.profile.map(p=>p.spend),backgroundColor:CL.slice(0,k),borderRadius:6,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:baseTicks()},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Spending Score'),min:0,max:100}}}});
+  const pds=CLS.profile.map((_,i)=>({label:'C'+i,data:D.pca.filter((_,j)=>CLS.labels[j]===i).map(p=>({x:p[0],y:p[1]})),backgroundColor:CL[i]+'99',pointRadius:4}));
+  mk('cPca',{type:'scatter',data:{datasets:pds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle(`PC1 (${D.pcaVar[0]}% var)`)},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle(`PC2 (${D.pcaVar[1]}% var)`)}}}});
+
+  document.getElementById('recs').innerHTML=CLS.profile.map((p,i)=>`
+    <div class="rec-card" style="border-left-color:${CL[i]}">
+      <div class="rec-header">
+        <span class="rec-icon">${p.icon}</span>
+        <div><div class="rec-title">C${i} — ${p.name}</div><div class="rec-meta">$${p.income}k income · ${p.spend} spending · ${p.age} yrs avg</div></div>
+        <span class="seg-tag" style="background:${CL[i]}22;color:${CL[i]}">${p.size} · ${p.pct}%</span>
+      </div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.6">${p.rec}</div>
+    </div>`).join('');
+}
+
+function updatePredChart(){
+  const C=D.customers,L=CLS.labels;
+  const ds=CLS.profile.map((_,i)=>({label:'C'+i,data:C.filter((_,j)=>L[j]===i).map(r=>({x:r.Annual_Income,y:r.Spending_Score})),backgroundColor:CL[i]+'77',pointRadius:4}));
+  if(window._pp) ds.push({label:'New',data:[{x:window._pp.x,y:window._pp.y}],backgroundColor:'#1F1A14',pointRadius:13,pointStyle:'star',pointHoverRadius:16});
+  mk('cPred',{type:'scatter',data:{datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Annual Income (k$)')},y:{grid:lightGrid(),ticks:baseTicks(),title:baseTitle('Spending Score')}}}});
+}
+
+function d2(a,b){return a.reduce((s,v,i)=>s+(v-b[i])**2,0);}
+
+function recluster(){
+  const k=+document.getElementById('kS').value;
+  const iters=+document.getElementById('iS').value;
+  const C=D.customers;
+  const pts=C.map(r=>[r.Annual_Income,r.Spending_Score,r.Age]);
+  const mu=[0,1,2].map(d=>pts.reduce((s,p)=>s+p[d],0)/pts.length);
+  const sd=[0,1,2].map(d=>Math.sqrt(pts.reduce((s,p)=>s+(p[d]-mu[d])**2,0)/pts.length)+1e-9);
+  const sc=pts.map(p=>p.map((v,d)=>(v-mu[d])/sd[d]));
+  let ce=[sc[Math.floor(Math.random()*sc.length)]];
+  for(let i=1;i<k;i++){
+    const ds2=sc.map(p=>Math.min(...ce.map(c=>d2(p,c))));
+    const sum=ds2.reduce((a,b)=>a+b,0);let r=Math.random()*sum;
+    for(let j=0;j<sc.length;j++){r-=ds2[j];if(r<=0){ce.push(sc[j]);break;}}
+  }
+  let lb=new Array(sc.length).fill(0);
+  for(let it=0;it<iters;it++){
+    lb=sc.map(p=>ce.map((c,i)=>({i,d:d2(p,c)})).sort((a,b)=>a.d-b.d)[0].i);
+    const nce=Array.from({length:k},(_,c)=>{const g=sc.filter((_,i)=>lb[i]===c);return g.length?[0,1,2].map(d=>g.reduce((s,p)=>s+p[d],0)/g.length):ce[c]});
+    if(nce.every((c,i)=>d2(c,ce[i])<1e-9))break;ce=nce;
+  }
+  const cents=ce.map(c=>[c[0]*sd[0]+mu[0],c[1]*sd[1]+mu[1]]);
+  const inc_med=C.map(r=>r.Annual_Income).slice().sort((a,b)=>a-b)[Math.floor(C.length/2)];
+  const sp_med=C.map(r=>r.Spending_Score).slice().sort((a,b)=>a-b)[Math.floor(C.length/2)];
+  const NAMES=["High Rollers", "Affluent Savers", "Impulsive Buyers", "Budget Shoppers", "Mainstream Crowd", "Young Trendsetters", "Mature Elites", "Deal Hunters"];const RECS=["\ud83c\udfc6 VIP priority \u2014 exclusive early access, premium loyalty rewards, white-glove service.", "\ud83d\udca1 Untapped potential \u2014 aspirational upsell campaigns, prestige product showcases.", "\u26a1 Impulse-driven \u2014 limited-time offers, BNPL options, scarcity messaging.", "\ud83d\udcb0 Price-sensitive \u2014 value bundles, cashback programs, referral incentives.", "\ud83d\udc65 Core backbone \u2014 personalised recommendations, loyalty points, retention campaigns.", "\u2728 Trend-driven \u2014 social proof, influencer content, fast-moving fashion drops.", "\ud83c\udfaf Quality-focused \u2014 premium memberships, concierge service, heritage brands.", "\ud83d\udd16 Deal-seekers \u2014 flash sales, price-match guarantees, comparison widgets."];const ICONS=["\ud83d\udc8e", "\ud83c\udfe6", "\ud83d\udecd\ufe0f", "\ud83e\ude99", "\ud83d\udc65", "\u2728", "\ud83c\udfaf", "\ud83d\udd16"];
+  CLS={labels:lb,centroids:cents,profile:Array.from({length:k},(_,c)=>{
+    const g=C.filter((_,i)=>lb[i]===c);
+    const inc=g.reduce((s,r)=>s+r.Annual_Income,0)/g.length;
+    const sp=g.reduce((s,r)=>s+r.Spending_Score,0)/g.length;
+    const age=g.reduce((s,r)=>s+r.Age,0)/g.length;
+    const hi=inc>=inc_med,hs=sp>=sp_med,ni=hi&&hs?0:hi?1:hs?2:3;
+    return{name:NAMES[ni],rec:RECS[ni],icon:ICONS[ni],size:g.length,pct:+(g.length/C.length*100).toFixed(1),income:+inc.toFixed(1),spend:+sp.toFixed(1),age:+age.toFixed(1)};
+  })};
+  drawClusters();drawInsights();updatePredChart();
+}
+
+function predict(){
+  const inc=+document.getElementById('pInc').value;
+  const sp=+document.getElementById('pSpend').value;
+  const age=+document.getElementById('pAge').value;
+  const C=D.customers;
+  const mu=[C.reduce((s,r)=>s+r.Annual_Income,0)/C.length,C.reduce((s,r)=>s+r.Spending_Score,0)/C.length,C.reduce((s,r)=>s+r.Age,0)/C.length];
+  const sd=[0,1,2].map(d=>Math.sqrt(C.reduce((s,r)=>s+([r.Annual_Income,r.Spending_Score,r.Age][d]-mu[d])**2,0)/C.length)+1e-9);
+  const allPts=C.map(r=>[(r.Annual_Income-mu[0])/sd[0],(r.Spending_Score-mu[1])/sd[1],(r.Age-mu[2])/sd[2]]);
+  const k=CLS.profile.length;
+  const ce=Array.from({length:k},(_,c)=>{const g=allPts.filter((_,i)=>CLS.labels[i]===c);return g.length?[0,1,2].map(d=>g.reduce((s,p)=>s+p[d],0)/g.length):[0,0,0]});
+  const inp=[(inc-mu[0])/sd[0],(sp-mu[1])/sd[1],(age-mu[2])/sd[2]];
+  const c=ce.map((cv,i)=>({i,d:d2(inp,cv)})).sort((a,b)=>a.d-b.d)[0].i;
+  const conf=Math.min(100,Math.max(0,100-d2(inp,ce[c])*12)).toFixed(1);
+  const p=CLS.profile[c];
+  document.getElementById('pRes').style.display='block';
+  document.getElementById('pOut').innerHTML=`
+    <div class="pred-cluster-badge" style="background:${CL[c]}14;border-color:${CL[c]}44">
+      <div style="font-size:30px;margin-bottom:6px">${p.icon}</div>
+      <div style="font-family:'Fraunces',serif;font-size:21px;font-weight:700;color:${CL[c]};margin-bottom:3px">C${c} — ${p.name}</div>
+      <div style="font-size:12px;color:var(--text3)">Confidence: <strong style="color:var(--text)">${conf}%</strong></div>
+    </div>
+    <div class="stat-row"><span class="stat-label">Cluster avg income</span><span class="stat-value">$${p.income}k</span></div>
+    <div class="stat-row"><span class="stat-label">Cluster avg spending</span><span class="stat-value">${p.spend}</span></div>
+    <div class="stat-row"><span class="stat-label">Cluster avg age</span><span class="stat-value">${p.age} yrs</span></div>
+    <div class="stat-row"><span class="stat-label">Cluster size</span><span class="stat-value">${p.size} customers</span></div>
+    <div style="margin-top:14px;background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px 14px;font-size:13px;color:var(--text2);line-height:1.6">
+      <strong style="color:var(--text)">Strategy:</strong> ${p.rec}
+    </div>`;
+  window._pp={x:inc,y:sp,c};
+  updatePredChart();
+}
+
+init();
+</script>
+</body>
+</html>

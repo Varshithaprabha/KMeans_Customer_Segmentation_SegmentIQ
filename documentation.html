@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SegmentIQ — Documentation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:      #0D0F14;
+  --bg2:     #13161E;
+  --bg3:     #1A1E28;
+  --border:  #252A38;
+  --border2: #2E3447;
+  --text:    #E8ECF4;
+  --text2:   #8B92A5;
+  --text3:   #555D72;
+  --accent:  #6366F1;
+  --accent2: #818CF8;
+  --green:   #10B981;
+  --amber:   #F59E0B;
+  --red:     #EF4444;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+.site-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.logo { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+.logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+}
+.logo-text { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+.logo-text span { color: var(--accent2); }
+.header-nav { display: flex; gap: 28px; }
+.header-nav a { font-size: 13px; color: var(--text2); text-decoration: none; font-weight: 500; transition: color .15s; }
+.header-nav a:hover { color: var(--text); }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.badge-doc { background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px; padding: 4px 12px; font-size: 12px; color: var(--text2); }
+.badge-ver { background: linear-gradient(135deg,#6366F1,#8B5CF6); border-radius: 6px; padding: 4px 11px; font-size: 11px; font-weight: 700; color: #fff; }
+
+/* ── HERO ────────────────────────────────────────────── */
+.doc-hero {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  padding: 64px 40px;
+  text-align: center;
+}
+.doc-hero .eyebrow {
+  font-size: 12px; font-weight: 700; color: var(--accent2);
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 16px;
+}
+.doc-hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 48px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  max-width: 680px;
+  margin: 0 auto 20px;
+}
+.doc-hero h1 em { color: var(--accent2); font-style: italic; }
+.doc-hero p {
+  font-size: 16px; color: var(--text2); max-width: 540px; margin: 0 auto 32px; line-height: 1.65;
+}
+.hero-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.pill {
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+}
+.pill.accent { background: rgba(99,102,241,.15); border-color: rgba(99,102,241,.3); color: var(--accent2); }
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.doc-body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 0;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+@media(max-width:860px){ .doc-body { grid-template-columns: 1fr; } }
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 32px 0;
+  position: sticky;
+  top: 62px;
+  height: calc(100vh - 62px);
+  overflow-y: auto;
+}
+.sidebar-group { margin-bottom: 28px; padding: 0 20px; }
+.sidebar-group-title {
+  font-size: 10px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px;
+}
+.sidebar-link {
+  display: block;
+  font-size: 13px; color: var(--text2);
+  padding: 5px 8px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all .15s;
+  margin-bottom: 2px;
+}
+.sidebar-link:hover { color: var(--text); background: var(--bg3); }
+.sidebar-link.active { color: var(--accent2); background: rgba(99,102,241,.1); }
+
+/* ── CONTENT ─────────────────────────────────────────── */
+.doc-content {
+  padding: 48px 52px;
+  max-width: 820px;
+}
+.section { margin-bottom: 56px; scroll-margin-top: 80px; }
+.section h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 30px; font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+.section h3 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; color: var(--text); }
+.section h4 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; }
+.section p { color: var(--text2); margin-bottom: 14px; line-height: 1.75; }
+.section p strong { color: var(--text); font-weight: 600; }
+.section ul, .section ol { padding-left: 20px; margin-bottom: 14px; }
+.section li { color: var(--text2); margin-bottom: 7px; line-height: 1.65; }
+.section li strong { color: var(--text); }
+a { color: var(--accent2); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── CODE BLOCKS ─────────────────────────────────────── */
+pre {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 16px 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #C9D1D9;
+}
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: var(--accent2);
+}
+pre code { background: none; border: none; padding: 0; color: inherit; font-size: inherit; }
+.kw  { color: #FF79C6; }
+.fn  { color: #50FA7B; }
+.st  { color: #F1FA8C; }
+.cm  { color: #6272A4; font-style: italic; }
+.num { color: #BD93F9; }
+.var { color: #8BE9FD; }
+
+/* ── CALLOUTS ────────────────────────────────────────── */
+.callout {
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 18px 0;
+  border: 1px solid;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout-text { font-size: 13px; line-height: 1.6; }
+.callout-text strong { display: block; font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+.callout.info { background: rgba(99,102,241,.08); border-color: rgba(99,102,241,.25); }
+.callout.info .callout-text { color: var(--accent2); }
+.callout.success { background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.25); }
+.callout.success .callout-text { color: #34D399; }
+.callout.warn { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.25); }
+.callout.warn .callout-text { color: #FCD34D; }
+
+/* ── PARAMETER TABLE ─────────────────────────────────── */
+.param-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.param-table th { text-align: left; padding: 8px 12px; color: var(--text3); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); }
+.param-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.param-table tr:last-child td { border: none; }
+.param-table td:first-child { font-family: 'DM Mono', monospace; color: var(--accent2); white-space: nowrap; }
+.param-table td:nth-child(2) { color: var(--text3); }
+.param-table td:nth-child(3) { font-family: 'DM Mono', monospace; color: var(--amber); }
+.param-table td:last-child { color: var(--text2); }
+
+/* ── FEATURE GRID ────────────────────────────────────── */
+.feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+@media(max-width:600px){ .feat-grid { grid-template-columns: 1fr; } }
+.feat-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.feat-card-icon { font-size: 22px; margin-bottom: 8px; }
+.feat-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.feat-card-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+/* ── SEGMENT TABLE ───────────────────────────────────── */
+.seg-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+.seg-table th { text-align: left; padding: 8px 12px; font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .06em; border-bottom: 1px solid var(--border); }
+.seg-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text2); }
+.seg-table tr:last-child td { border: none; }
+.seg-table tr:hover td { background: var(--bg3); }
+.sdot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 7px; vertical-align: middle; }
+
+/* ── STEPS ───────────────────────────────────────────── */
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step {
+  display: flex; gap: 16px;
+  padding-bottom: 28px;
+  position: relative;
+}
+.step:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 15px; top: 32px;
+  width: 1px;
+  bottom: 0;
+  background: var(--border);
+}
+.step-n {
+  width: 32px; height: 32px;
+  background: var(--accent);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.step-body h4 { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; padding-top: 4px; }
+.step-body p  { font-size: 13px; color: var(--text2); margin: 0; line-height: 1.6; }
+
+/* ── TOC ─────────────────────────────────────────────── */
+.toc { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 32px; }
+.toc-title { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+.toc ol { padding-left: 18px; }
+.toc li { margin-bottom: 6px; font-size: 13px; }
+.toc a { color: var(--text2); }
+.toc a:hover { color: var(--accent2); }
+
+/* ── FOOTER ──────────────────────────────────────────── */
+.site-footer {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  padding: 0 40px;
+}
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding: 40px 0 32px;
+}
+@media(max-width:860px){ .footer-top { grid-template-columns: 1fr; gap: 24px; } }
+.footer-brand p { font-size: 13px; color: var(--text2); line-height: 1.6; margin-top: 10px; max-width: 280px; }
+.footer-col h4 { font-size: 11px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.footer-col li { font-size: 13px; color: var(--text2); }
+.footer-col li a { color: var(--text2); text-decoration: none; }
+.footer-col li a:hover { color: var(--accent2); }
+.footer-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+.fpill { background: var(--bg3); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.footer-bottom { border-top: 1px solid var(--border); padding: 16px 0; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text3); }
+.footer-bottom a { color: var(--accent2); text-decoration: none; }
+
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HEADER ═══════════ -->
+<header class="site-header">
+  <a href="#" class="logo">
+    <div class="logo-icon">📊</div>
+    <div class="logo-text">Segment<span>IQ</span></div>
+  </a>
+  <nav class="header-nav">
+    <a href="#quickstart">Quickstart</a>
+    <a href="#algorithm">Algorithm</a>
+    <a href="#dashboard">Dashboard</a>
+    <a href="#api">CLI Reference</a>
+    <a href="#segments">Segments</a>
+  </nav>
+  <div class="header-right">
+    <div class="badge-doc">Documentation</div>
+    <div class="badge-ver">v2.0</div>
+  </div>
+</header>
+
+<!-- ═══════════ HERO ═══════════ -->
+<div class="doc-hero">
+  <div class="eyebrow">Documentation · v2.0</div>
+  <h1>K-Means Customer<br><em>Segmentation</em> Dashboard</h1>
+  <p>A self-contained retail analytics tool that clusters customers by purchase behaviour, visualises the results in a live browser dashboard, and classifies new customers in real time.</p>
+  <div class="hero-pills">
+    <div class="pill accent">Python 3.8+</div>
+    <div class="pill">scikit-learn</div>
+    <div class="pill">pandas · numpy</div>
+    <div class="pill">Chart.js 4</div>
+    <div class="pill">Zero extra servers</div>
+    <div class="pill">Kaggle Mall Dataset</div>
+  </div>
+</div>
+
+<!-- ═══════════ BODY ═══════════ -->
+<div class="doc-body">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Getting Started</div>
+      <a class="sidebar-link active" href="#overview">Overview</a>
+      <a class="sidebar-link" href="#quickstart">Quickstart</a>
+      <a class="sidebar-link" href="#dataset">Dataset</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Algorithm</div>
+      <a class="sidebar-link" href="#algorithm">K-Means Explained</a>
+      <a class="sidebar-link" href="#elbow">Elbow Method</a>
+      <a class="sidebar-link" href="#silhouette">Silhouette Score</a>
+      <a class="sidebar-link" href="#pca">PCA Projection</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Dashboard</div>
+      <a class="sidebar-link" href="#dashboard">Dashboard Tabs</a>
+      <a class="sidebar-link" href="#predict">Predict Feature</a>
+      <a class="sidebar-link" href="#recluster">Re-clustering</a>
+    </div>
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Reference</div>
+      <a class="sidebar-link" href="#api">CLI Options</a>
+      <a class="sidebar-link" href="#segments">Segment Profiles</a>
+      <a class="sidebar-link" href="#functions">Code Reference</a>
+      <a class="sidebar-link" href="#troubleshoot">Troubleshooting</a>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <article class="doc-content">
+
+    <!-- TOC -->
+    <div class="toc">
+      <div class="toc-title">On this page</div>
+      <ol>
+        <li><a href="#overview">Overview & Architecture</a></li>
+        <li><a href="#quickstart">Quickstart (2 minutes)</a></li>
+        <li><a href="#dataset">Dataset & Features</a></li>
+        <li><a href="#algorithm">K-Means Algorithm</a></li>
+        <li><a href="#elbow">Elbow Method & Auto-K</a></li>
+        <li><a href="#dashboard">Dashboard Tabs</a></li>
+        <li><a href="#predict">Real-Time Prediction</a></li>
+        <li><a href="#api">CLI Reference</a></li>
+        <li><a href="#segments">Segment Profiles</a></li>
+        <li><a href="#functions">Code Reference</a></li>
+        <li><a href="#troubleshoot">Troubleshooting</a></li>
+      </ol>
+    </div>
+
+    <!-- OVERVIEW -->
+    <section class="section" id="overview">
+      <h2>Overview</h2>
+      <p>
+        <strong>SegmentIQ</strong> is a single-file Python application that applies K-Means clustering to retail customer data, then serves a fully interactive analytics dashboard in your default web browser — no Flask, no Node, no configuration files required.
+      </p>
+      <div class="feat-grid">
+        <div class="feat-card"><div class="feat-card-icon">🧮</div><div class="feat-card-title">Smart clustering</div><div class="feat-card-desc">K-Means++ initialisation with automatic K selection via the elbow method.</div></div>
+        <div class="feat-card"><div class="feat-card-icon">📊</div><div class="feat-card-title">Live dashboard</div><div class="feat-card-desc">Four-tab browser dashboard with scatter plots, histograms, PCA, and profiles.</div></div>
+        <div class="feat-card"><div class="feat-card-icon">⚡</div><div class="feat-card-title">Real-time predict</div><div class="feat-card-desc">Type in a customer's income, spending, and age — get their cluster instantly.</div></div>
+        <div class="feat-card"><div class="feat-card-icon">🔄</div><div class="feat-card-title">Browser re-cluster</div><div class="feat-card-desc">Adjust K and iterations in the UI and re-run K-Means without restarting Python.</div></div>
+        <div class="feat-card"><div class="feat-card-icon">📁</div><div class="feat-card-title">Synthetic fallback</div><div class="feat-card-desc">Works without the CSV — generates a representative 200-customer dataset.</div></div>
+        <div class="feat-card"><div class="feat-card-icon">💾</div><div class="feat-card-title">Export HTML</div><div class="feat-card-desc">Saves a standalone <code>customer_segmentation_dashboard.html</code> you can share.</div></div>
+      </div>
+
+      <h3>Architecture</h3>
+      <p>Everything runs in a single Python file. The flow is:</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body"><h4>Data Ingestion</h4><p>Reads <code>Mall_Customers.csv</code> (or generates synthetic data). Normalises column names automatically.</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body"><h4>Preprocessing</h4><p>Features are standardised with <code>StandardScaler</code> (zero mean, unit variance) before clustering.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body"><h4>Elbow + Silhouette</h4><p>Runs K-Means for K=2..10, computes WCSS and silhouette scores, picks the elbow automatically.</p></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body"><h4>K-Means Fit</h4><p>Final model fitted with k-means++ init, 15 random restarts, up to 300 iterations.</p></div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-body"><h4>HTML Generation</h4><p>All data, cluster labels, centroids, PCA projections, and profiles are serialised into a self-contained HTML file.</p></div></div>
+        <div class="step"><div class="step-n">6</div><div class="step-body"><h4>Serve &amp; Open</h4><p>A lightweight <code>http.server</code> thread serves the page, then <code>webbrowser.open()</code> launches your browser.</p></div></div>
+      </div>
+    </section>
+
+    <!-- QUICKSTART -->
+    <section class="section" id="quickstart">
+      <h2>Quickstart</h2>
+      <h3>1 — Install dependencies</h3>
+      <pre><code><span class="cm"># Only 3 packages needed</span>
+pip install pandas numpy scikit-learn</code></pre>
+
+      <h3>2 — Run (without the CSV)</h3>
+      <pre><code>python kmeans_customer_segmentation.py</code></pre>
+      <p>A browser window opens automatically at <code>http://localhost:8765</code> with 200 synthetic customers pre-loaded.</p>
+
+      <h3>3 — Run with the Kaggle dataset</h3>
+      <p>Download <a href="https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python" target="_blank">Mall_Customers.csv</a> from Kaggle, then:</p>
+      <pre><code>python kmeans_customer_segmentation.py --data Mall_Customers.csv</code></pre>
+
+      <h3>4 — Force a specific K</h3>
+      <pre><code>python kmeans_customer_segmentation.py --data Mall_Customers.csv --k 5</code></pre>
+
+      <div class="callout success">
+        <div class="callout-icon">✓</div>
+        <div class="callout-text"><strong>Standalone HTML</strong>A file named <code>customer_segmentation_dashboard.html</code> is saved in your working directory every time you run the script. You can open this file directly in any browser — no Python needed.</div>
+      </div>
+    </section>
+
+    <!-- DATASET -->
+    <section class="section" id="dataset">
+      <h2>Dataset &amp; Features</h2>
+      <p>
+        The script is designed for the <a href="https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python">Kaggle Mall Customer Segmentation</a> dataset (200 rows, 5 columns). Column names are normalised automatically — any case or spacing variant is accepted.
+      </p>
+
+      <h3>Columns</h3>
+      <table class="param-table">
+        <thead><tr><th>Column</th><th>Type</th><th>Range</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>CustomerID</td><td>integer</td><td>1–200</td><td>Unique identifier (unused in clustering)</td></tr>
+          <tr><td>Gender</td><td>string</td><td>Male / Female</td><td>Customer gender (unused in clustering)</td></tr>
+          <tr><td>Age</td><td>integer</td><td>18–70</td><td>Customer age in years</td></tr>
+          <tr><td>Annual Income (k$)</td><td>float</td><td>15–137</td><td>Annual income in thousands of USD</td></tr>
+          <tr><td>Spending Score (1-100)</td><td>integer</td><td>1–100</td><td>Score assigned by the mall based on purchase behaviour</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Features used for clustering</h3>
+      <p>By default, clustering uses <strong>Annual_Income</strong> and <strong>Spending_Score</strong>. Age is used for profiling and the browser-side re-cluster uses all three.</p>
+
+      <div class="callout info">
+        <div class="callout-icon">ℹ</div>
+        <div class="callout-text"><strong>Synthetic fallback</strong>If no CSV is provided, the script generates 200 synthetic customers whose income/spending distribution closely mirrors the real dataset's five natural clusters.</div>
+      </div>
+    </section>
+
+    <!-- ALGORITHM -->
+    <section class="section" id="algorithm">
+      <h2>K-Means Algorithm</h2>
+      <p>
+        K-Means partitions <em>n</em> customers into <em>k</em> non-overlapping groups by minimising the <strong>within-cluster sum of squares (WCSS)</strong>:
+      </p>
+      <pre><code>WCSS = Σ Σ ||x_i − μ_k||²
+      k  x_i∈C_k</code></pre>
+      <p>where <code>μ_k</code> is the centroid (mean) of cluster <code>C_k</code>.</p>
+
+      <h3>k-means++ Initialisation</h3>
+      <p>
+        Vanilla K-Means is sensitive to centroid initialisation. <strong>k-means++</strong> selects initial centroids with probability proportional to their squared distance from already-chosen centroids, dramatically reducing variance and converging faster.
+      </p>
+
+      <h3>Algorithm Steps</h3>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div class="step-body"><h4>Standardise features</h4><p>All features are scaled to zero mean and unit variance so income (range ~$15k–$137k) doesn't dominate spending score (1–100).</p></div></div>
+        <div class="step"><div class="step-n">2</div><div class="step-body"><h4>Initialise centroids (k-means++)</h4><p>First centroid chosen at random. Each subsequent centroid chosen with probability proportional to D(x)² — the squared distance to the nearest existing centroid.</p></div></div>
+        <div class="step"><div class="step-n">3</div><div class="step-body"><h4>Assignment step</h4><p>Each customer is assigned to the cluster whose centroid minimises Euclidean distance in the standardised feature space.</p></div></div>
+        <div class="step"><div class="step-n">4</div><div class="step-body"><h4>Update step</h4><p>Each centroid is recomputed as the mean of all customers assigned to it.</p></div></div>
+        <div class="step"><div class="step-n">5</div><div class="step-body"><h4>Convergence check</h4><p>Steps 3–4 repeat until centroid positions change by less than 1×10⁻⁹ or <code>max_iter</code> is reached.</p></div></div>
+      </div>
+
+      <h3>Hyperparameters</h3>
+      <table class="param-table">
+        <thead><tr><th>Parameter</th><th>scikit-learn arg</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>n_clusters</td><td>n_clusters</td><td>auto</td><td>K — auto-detected via elbow, or set with <code>--k</code></td></tr>
+          <tr><td>init</td><td>init</td><td>k-means++</td><td>Centroid initialisation strategy</td></tr>
+          <tr><td>n_init</td><td>n_init</td><td>15</td><td>Number of random restarts (best result kept)</td></tr>
+          <tr><td>max_iter</td><td>max_iter</td><td>300</td><td>Maximum iterations per restart</td></tr>
+          <tr><td>random_state</td><td>random_state</td><td>42</td><td>Seed for reproducibility</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- ELBOW -->
+    <section class="section" id="elbow">
+      <h2>Elbow Method &amp; Auto-K</h2>
+      <p>
+        The elbow method selects K by looking for the "elbow" — the point where adding more clusters yields diminishing WCSS improvements. The script automates this using the <strong>second derivative</strong> of the WCSS curve:
+      </p>
+      <pre><code><span class="kw">def</span> <span class="fn">auto_k</span>(wcss):
+    d2 = np.diff(wcss, <span class="num">2</span>)   <span class="cm"># second finite difference</span>
+    <span class="kw">return</span> <span class="fn">int</span>(np.argmax(d2) + <span class="num">3</span>)   <span class="cm"># +3 accounts for offset</span></code></pre>
+
+      <p>The elbow chart in the dashboard highlights the selected K in <span style="color:#EF4444">red</span>. You can override it with <code>--k</code> or use the K slider in the Clusters tab to re-run interactively.</p>
+
+      <h3 id="silhouette">Silhouette Score</h3>
+      <p>The silhouette score measures how well-separated the clusters are, ranging from <strong>−1</strong> (wrong cluster) to <strong>+1</strong> (perfect separation). Values above <strong>0.5</strong> indicate good clustering.</p>
+      <pre><code>s(i) = (b(i) − a(i)) / max(a(i), b(i))
+
+a(i) = mean distance to points in same cluster
+b(i) = mean distance to points in nearest other cluster</code></pre>
+
+      <div class="callout warn">
+        <div class="callout-icon">⚠</div>
+        <div class="callout-text"><strong>Typical values for this dataset</strong>With K=5 on the Kaggle dataset you should see a silhouette score around 0.55–0.57. Scores below 0.4 suggest K is too high or too low.</div>
+      </div>
+    </section>
+
+    <!-- PCA -->
+    <section class="section" id="pca">
+      <h2 style="margin-bottom:12px">PCA Projection</h2>
+      <p>
+        Principal Component Analysis (PCA) projects the standardised feature space into 2D for visualisation. The two principal components are shown in the <strong>Insights → PCA 2D Projection</strong> chart, with the percentage of variance explained noted on each axis.
+      </p>
+      <pre><code><span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+pca  = PCA(n_components=<span class="num">2</span>).fit(X_scaled)
+proj = pca.transform(X_scaled)   <span class="cm"># shape: (n_customers, 2)</span>
+var  = pca.explained_variance_ratio_</code></pre>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="section" id="dashboard">
+      <h2>Dashboard Tabs</h2>
+
+      <h3>Overview</h3>
+      <ul>
+        <li><strong>Metric cards</strong> — total customers, average income, spending score, and age.</li>
+        <li><strong>Income histogram</strong> — frequency distribution of annual income across all customers.</li>
+        <li><strong>Spending score histogram</strong> — distribution of spending scores.</li>
+        <li><strong>Raw scatter</strong> — income vs spending, uncoloured, before any clustering is applied.</li>
+      </ul>
+
+      <h3>Clusters</h3>
+      <ul>
+        <li><strong>K slider</strong> — adjust K from 2 to 8 and click "Re-run K-Means" to recompute in the browser.</li>
+        <li><strong>Elbow curve</strong> — WCSS vs K with the auto-selected K highlighted.</li>
+        <li><strong>Cluster map</strong> — scatter plot coloured by cluster, with star markers for centroids.</li>
+        <li><strong>Profiles table</strong> — per-cluster averages for income, spending, age, and size.</li>
+      </ul>
+
+      <h3 id="predict">Predict Tab</h3>
+      <p>Enter a customer's <strong>age</strong>, <strong>annual income</strong>, and <strong>spending score</strong> and click <em>Classify Customer</em>. The dashboard will:</p>
+      <ol>
+        <li>Standardise the inputs using the same scaler parameters as the training data.</li>
+        <li>Compute Euclidean distance from the input to each cluster centroid in standardised space.</li>
+        <li>Assign the customer to the nearest centroid.</li>
+        <li>Display the cluster name, a confidence estimate, cluster averages, and a marketing strategy recommendation.</li>
+        <li>Plot a <span style="color:#fff">★</span> star on the cluster map at the customer's position.</li>
+      </ol>
+      <div class="callout info">
+        <div class="callout-icon">ℹ</div>
+        <div class="callout-text"><strong>Confidence score</strong>The confidence is a heuristic: <code>max(0, 100 − dist² × 12)</code>. It drops as the customer moves further from the centroid. It is not a probabilistic estimate.</div>
+      </div>
+
+      <h3 id="recluster">Re-clustering in the browser</h3>
+      <p>
+        The Clusters tab includes a full JavaScript K-Means implementation that runs entirely in your browser. Adjust K and iterations, then click <strong>Re-run K-Means</strong> — no round-trip to Python needed. The implementation uses k-means++ initialisation matching the Python version.
+      </p>
+
+      <h3>Insights Tab</h3>
+      <ul>
+        <li><strong>Cluster sizes</strong> — bar chart showing how many customers are in each cluster.</li>
+        <li><strong>Spending by cluster</strong> — average spending score per cluster.</li>
+        <li><strong>PCA 2D projection</strong> — clusters visualised in reduced 2D space.</li>
+        <li><strong>Marketing recommendations</strong> — one card per cluster with icon, segment name, averages, and a targeted marketing strategy.</li>
+      </ul>
+    </section>
+
+    <!-- CLI -->
+    <section class="section" id="api">
+      <h2>CLI Reference</h2>
+      <pre><code>python kmeans_customer_segmentation.py [OPTIONS]</code></pre>
+      <table class="param-table">
+        <thead><tr><th>Flag</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>--data</td><td>path</td><td>None</td><td>Path to <code>Mall_Customers.csv</code>. If omitted, synthetic data is used.</td></tr>
+          <tr><td>--k</td><td>int</td><td>auto</td><td>Force a specific number of clusters. Bypasses elbow detection.</td></tr>
+          <tr><td>--port</td><td>int</td><td>8765</td><td>Port for the local HTTP server. Change if 8765 is in use.</td></tr>
+        </tbody>
+      </table>
+
+      <h3>Examples</h3>
+      <pre><code><span class="cm"># Synthetic data, auto K, default port</span>
+python kmeans_customer_segmentation.py
+
+<span class="cm"># Real CSV</span>
+python kmeans_customer_segmentation.py <span class="var">--data</span> Mall_Customers.csv
+
+<span class="cm"># Force K=5</span>
+python kmeans_customer_segmentation.py <span class="var">--data</span> Mall_Customers.csv <span class="var">--k</span> <span class="num">5</span>
+
+<span class="cm"># Custom port (e.g. if 8765 is occupied)</span>
+python kmeans_customer_segmentation.py <span class="var">--port</span> <span class="num">9000</span></code></pre>
+    </section>
+
+    <!-- SEGMENTS -->
+    <section class="section" id="segments">
+      <h2>Segment Profiles</h2>
+      <p>Segments are named heuristically based on median income and spending score. With the default K=5 on the Kaggle dataset, you will typically see:</p>
+      <table class="seg-table">
+        <thead><tr><th>Icon</th><th>Name</th><th>Income</th><th>Spending</th><th>Strategy</th></tr></thead>
+        <tbody>
+          <tr><td>💎</td><td>High Rollers</td><td>High</td><td>High</td><td>VIP perks, exclusive access, white-glove service</td></tr>
+          <tr><td>🏦</td><td>Affluent Savers</td><td>High</td><td>Low</td><td>Aspirational upsell, prestige product showcases</td></tr>
+          <tr><td>🛍️</td><td>Impulsive Buyers</td><td>Low</td><td>High</td><td>BNPL, scarcity messaging, limited-time offers</td></tr>
+          <tr><td>🪙</td><td>Budget Shoppers</td><td>Low</td><td>Low</td><td>Value bundles, cashback, referral incentives</td></tr>
+          <tr><td>👥</td><td>Mainstream Crowd</td><td>Mid</td><td>Mid</td><td>Personalised recommendations, loyalty points</td></tr>
+        </tbody>
+      </table>
+      <p>The naming logic (in <code>make_profiles</code>) compares each cluster's average income and spending against the dataset median. Clusters above both medians → High Rollers; above income only → Affluent Savers; etc.</p>
+    </section>
+
+    <!-- FUNCTIONS -->
+    <section class="section" id="functions">
+      <h2>Code Reference</h2>
+
+      <h3><code>load_or_generate(path=None)</code></h3>
+      <p>Reads a CSV from <code>path</code> and normalises column names. If <code>path</code> is <code>None</code> or the file doesn't exist, generates 200 synthetic customers across 5 natural clusters using <code>numpy.random.seed(42)</code> for reproducibility.</p>
+      <pre><code><span class="kw">def</span> <span class="fn">load_or_generate</span>(path=<span class="kw">None</span>) -> pd.DataFrame</code></pre>
+
+      <h3><code>elbow_data(X_sc, k_max=10)</code></h3>
+      <p>Runs K-Means for K in <code>range(2, k_max+1)</code> and returns three parallel lists: K values, WCSS scores, and silhouette scores.</p>
+      <pre><code><span class="kw">def</span> <span class="fn">elbow_data</span>(X_sc, k_max=<span class="num">10</span>) -> (list, list, list)</code></pre>
+
+      <h3><code>auto_k(wcss)</code></h3>
+      <p>Selects the elbow K automatically using the maximum second derivative of the WCSS sequence.</p>
+      <pre><code><span class="kw">def</span> <span class="fn">auto_k</span>(wcss: list) -> int</code></pre>
+
+      <h3><code>run_kmeans(X_sc, k)</code></h3>
+      <p>Fits a <code>KMeans(init='k-means++', n_init=15)</code> model and returns the fitted model and cluster labels.</p>
+      <pre><code><span class="kw">def</span> <span class="fn">run_kmeans</span>(X_sc, k) -> (KMeans, np.ndarray)</code></pre>
+
+      <h3><code>make_profiles(df, labels, inc_med, sp_med)</code></h3>
+      <p>Groups customers by label and computes per-cluster statistics. Returns a list of dicts with keys: <code>name</code>, <code>rec</code>, <code>icon</code>, <code>size</code>, <code>pct</code>, <code>income</code>, <code>spend</code>, <code>age</code>.</p>
+      <pre><code><span class="kw">def</span> <span class="fn">make_profiles</span>(df, labels, inc_med, sp_med) -> list[dict]</code></pre>
+
+      <h3><code>build_html(df, ks, wcss, sil, bk, km, labels, scaler, features)</code></h3>
+      <p>Serialises all data and cluster results into the HTML template string using <code>str.replace</code>. Returns the complete HTML string.</p>
+
+      <h3><code>serve(html, port)</code></h3>
+      <p>Starts a daemon <code>http.server.HTTPServer</code> thread on <code>localhost:port</code> that always serves the same HTML string, regardless of URL path.</p>
+    </section>
+
+    <!-- TROUBLESHOOT -->
+    <section class="section" id="troubleshoot">
+      <h2>Troubleshooting</h2>
+
+      <h3>Browser doesn't open automatically</h3>
+      <p>Open <code>http://localhost:8765</code> manually, or use <code>--port</code> to try a different port. On some Linux systems <code>webbrowser.open</code> requires a desktop environment.</p>
+
+      <h3>Port already in use</h3>
+      <pre><code>python kmeans_customer_segmentation.py --port 9000</code></pre>
+
+      <h3>CSV columns not recognised</h3>
+      <p>The script normalises column names case-insensitively. If your CSV has unusual names, check that they contain the substrings <code>income</code>, <code>spend</code>, <code>age</code>, or <code>gender</code>.</p>
+
+      <h3>ModuleNotFoundError</h3>
+      <pre><code>pip install pandas numpy scikit-learn</code></pre>
+      <p>No other packages are needed. <code>Chart.js</code> is loaded from a CDN in the browser.</p>
+
+      <h3>Charts not rendering</h3>
+      <p>The dashboard loads <code>Chart.js</code> from <code>cdn.jsdelivr.net</code>. If you're offline, download <code>chart.umd.min.js</code> locally and update the <code>&lt;script src&gt;</code> tag in the HTML template.</p>
+
+      <div class="callout info">
+        <div class="callout-icon">ℹ</div>
+        <div class="callout-text"><strong>Headless environments</strong>If running on a remote server without a display, the script still works — it saves the HTML file and starts the server. Use SSH port-forwarding: <code>ssh -L 8765:localhost:8765 user@server</code>, then open <code>http://localhost:8765</code> locally.</div>
+      </div>
+    </section>
+
+  </article>
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="logo" style="margin-bottom:0">
+        <div class="logo-icon" style="width:30px;height:30px;font-size:15px">📊</div>
+        <div class="logo-text" style="font-size:15px">Segment<span>IQ</span></div>
+      </a>
+      <p>Open-source retail analytics powered by K-Means clustering. Built for data scientists, retail strategists, and product teams who need fast, visual customer insights.</p>
+      <div class="footer-pills">
+        <div class="fpill">Python 3.8+</div>
+        <div class="fpill">scikit-learn</div>
+        <div class="fpill">Chart.js 4</div>
+        <div class="fpill">pandas</div>
+        <div class="fpill">numpy</div>
+      </div>
+    </div>
+
+    <div class="footer-col">
+      <h4>Algorithm</h4>
+      <ul>
+        <li>K-Means Clustering</li>
+        <li>k-means++ Init</li>
+        <li>Elbow Method</li>
+        <li>Silhouette Score</li>
+        <li>PCA Projection</li>
+        <li>StandardScaler</li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Dashboard</h4>
+      <ul>
+        <li>Overview Tab</li>
+        <li>Clusters Tab</li>
+        <li>Predict Tab</li>
+        <li>Insights Tab</li>
+        <li>Browser Re-cluster</li>
+        <li>Export Standalone HTML</li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <ul>
+        <li><a href="https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python" target="_blank">Kaggle Dataset</a></li>
+        <li><a href="https://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html" target="_blank">scikit-learn KMeans</a></li>
+        <li><a href="https://www.chartjs.org/docs/latest/" target="_blank">Chart.js Docs</a></li>
+        <li><a href="https://scikit-learn.org/stable/modules/clustering.html#silhouette-coefficient" target="_blank">Silhouette Score</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 SegmentIQ · K-Means Customer Segmentation Dashboard · v2.0</span>
+    <span>Dataset: <a href="https://www.kaggle.com/datasets/vjchoudhary7/customer-segmentation-tutorial-in-python" target="_blank">Kaggle Mall Customers</a></span>
+  </div>
+</footer>
+
+<script>
+// Sidebar active link on scroll
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.sidebar-link');
+window.addEventListener('scroll', () => {
+  let cur = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 100) cur = s.id; });
+  links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#'+cur));
+}, {passive:true});
+</script>
+</body>
+</html>
